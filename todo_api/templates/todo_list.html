@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .completed {
+            color: green;
+            font-weight: bold;
+        }
+        .not-completed {
+            color: red;
+            font-weight: bold;
+        }
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .step-links a {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+        }
+        .step-links .current {
+            color: #555;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .create-form {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .create-form h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .create-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .create-form input[type="text"],
+        .create-form textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .create-form button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Todo List</h1>
+
+    <div class="filter-search">
+        <form action="" method="get">
+            <input type="text" name="search" placeholder="Search...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <ul>
+        {% for todo in page_obj %}
+            <li>
+                <h2>{{ todo.title }}</h2>
+                <p>{{ todo.description }}</p>
+                {% if todo.completed %}
+                    <span class="completed">Completed</span>
+                {% else %}
+                    <span class="not-completed">Not Completed</span>
+                {% endif %}
+                <form action="{% url 'todo-detail' todo.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
+                <form action="{% url 'todo-detail' todo.id %}" method="get" style="display: inline;">
+                    <button type="submit">Update</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="create-form">
+        <h2>Create New Todo</h2>
+        <form action="{% url 'todo-list-create' %}" method="post">
+            {% csrf_token %}
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+            <br>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            <br>
+            <button type="submit">Create</button>
+        </form>
+    </div>
+
+</body>
+</html>
